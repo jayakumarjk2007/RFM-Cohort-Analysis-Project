@@ -7,20 +7,18 @@
 [![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626.svg)](https://jupyter.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-An end-to-end data science and customer intelligence system implementing **Time-Based Cohort Analysis**, **RFM (Recency, Frequency, Monetary) Customer Segmentation**, and **Unsupervised Machine Learning (K-Means Clustering)** on e-commerce transaction data.
+An end-to-end data science project implementing **Time-Based Cohort Retention Analysis**, **RFM (Recency, Frequency, Monetary) Customer Segmentation**, and **Unsupervised Machine Learning (K-Means Clustering)** using transactional data from the Online Retail dataset.
 
 ---
 
 ## Table of Contents
 - [Project Overview](#project-overview)
-- [System Architecture](#system-architecture)
-- [Repository Structure](#repository-structure)
-- [Dataset Specifications & Preprocessing](#dataset-specifications--preprocessing)
-- [Cohort Analysis (Customer Retention)](#cohort-analysis-customer-retention)
-- [RFM Segmentation Methodology](#rfm-segmentation-methodology)
+- [Repository Files](#repository-files)
+- [Dataset Details & Preprocessing](#dataset-details--preprocessing)
+- [Cohort Analysis Methodology & Retention Table](#cohort-analysis-methodology--retention-table)
+- [RFM Segmentation Methodology & Results](#rfm-segmentation-methodology--results)
 - [Machine Learning Clustering (K-Means)](#machine-learning-clustering-k-means)
-- [Key Insights & Strategic Recommendations](#key-insights--strategic-recommendations)
-- [Technologies & Libraries](#technologies--libraries)
+- [Actionable Business Insights](#actionable-business-insights)
 - [Setup & Installation](#setup--installation)
 - [Usage Instructions](#usage-instructions)
 - [Author & Acknowledgments](#author--acknowledgments)
@@ -29,84 +27,38 @@ An end-to-end data science and customer intelligence system implementing **Time-
 
 ## Project Overview
 
-In e-commerce and retail analytics, aggregate metrics such as total revenue or overall conversion rate often mask underlying customer attrition, shifting buyer demographics, and retention drop-offs.
+In e-commerce and retail businesses, aggregate revenue metrics often obscure critical underlying customer churn, retention decay, and uneven revenue contribution across buyer tiers.
 
-This project delivers an automated intelligence framework to:
-1. **Track Retention Decay:** Measure how customer cohorts retain and spend over their lifetime using longitudinal cohort matrices.
-2. **Quantify Customer Value:** Score each buyer across Recency, Frequency, and Monetary dimensions to classify 4,338 customers into 10 targeted behavioral segments.
-3. **Discover Natural Clusters:** Apply K-Means clustering on de-skewed, standardized behavioral telemetry to discover empirical customer personas.
-4. **Drive Commercial ROI:** Provide data-driven marketing playbooks to protect high-value VIP revenue and mitigate early-stage customer churn.
-
----
-
-## System Architecture
-
-```
-Raw Transaction Data (541,909 records)
-       │
-       ▼
-Data Cleaning & Preprocessing (Missing CustomerID, Cancellations 'C', Invalid Prices/Quantities)
-       │
-       ▼ Cleaned Data (397,884 records | 4,338 Customers)
- ┌─────┴────────────────────────────────────────────────┐
- ▼                                                      ▼
-Cohort Analysis Pipeline                               RFM & ML Segmentation Pipeline
- ├── Group by CustomerID -> CohortMonth                 ├── Compute Recency, Frequency, Monetary
- ├── Truncate InvoiceDate -> InvoiceMonth               ├── 1-5 Quantile Scoring (R, F, M)
- ├── CohortIndex = (ΔYear * 12) + ΔMonth + 1            ├── 10 Behavioral Customer Segments
- ├── Active Customer Count Pivot Matrix                 ├── Log Transform -> StandardScaler
- └── Percentage Retention Matrix & Heatmap              └── K-Means Clustering (Elbow & Silhouette)
-       │                                                │
-       └────────────────────────┬───────────────────────┘
-                                │
-                                ▼
-         Actionable Commercial Retention Playbooks & VIP Strategies
-```
+This project delivers:
+1. **Cohort Analysis:** Longitudinal tracking of customer retention over time across 13 monthly cohorts, identifying retention drop-offs and customer lifetime patterns.
+2. **RFM Segmentation:** Scoring 4,338 customers across Recency, Frequency, and Monetary value into 10 actionable behavioral tiers (*Champions*, *Loyal Customers*, *At Risk*, etc.).
+3. **K-Means Clustering:** Data-driven persona discovery using log transformation, feature scaling, and optimal $k$ selection via Elbow and Silhouette methods.
+4. **Actionable Retention Strategy:** Commercial recommendations to mitigate early churn and maximize Customer Lifetime Value (LTV).
 
 ---
 
-## Repository Structure
+## Repository Files
 
 ```text
 Customer-Segmentation-and-Cohort-Analysis/
-├── data/
-│   ├── online_retail.csv              # Source transactional dataset (541,909 rows)
-│   └── customer_rfm_segments.csv      # Exported customer-level dataset with RFM & cluster tags
-├── figures/
-│   ├── eda_overview.png               # Monthly revenue trends & top products/markets
-│   ├── cohort_retention_heatmap.png   # Monthly retention percentage matrix heatmap
-│   ├── cohort_retention_curves.png    # Longitudinal retention decay curves
-│   ├── rfm_distributions.png          # Raw vs log-transformed RFM feature distributions
-│   ├── rfm_segment_summary.png        # Customer share vs revenue share by segment
-│   └── kmeans_evaluation.png          # Elbow inertia curve & Silhouette scores across k
-├── notebooks/
-│   └── Customer_Segmentation_and_Cohort_Analysis.ipynb # Fully executed analytical notebook
-├── reports/
-│   └── Project_Report.md              # Detailed academic/business project report
-├── src/
-│   ├── __init__.py
-│   ├── data_loader.py                 # Ingestion, validation, and data cleaning routines
-│   ├── cohort_analysis.py             # Cohort index, pivot tables, and retention matrices
-│   ├── rfm_analysis.py                # RFM computation, quantile scoring & segment mapping
-│   ├── kmeans_segmentation.py         # Skewness correction, scaling, K-Means & profiling
-│   └── visualization.py               # Publication-ready plotting utilities
-├── main.py                            # Standalone end-to-end CLI execution pipeline
-├── requirements.txt                   # Project package dependencies
-├── .gitignore                         # Git exclusion rules
-└── README.md                          # Comprehensive project documentation
+├── online_retail.csv                                  # Transactional dataset (397k cleaned records, 4.3k customers)
+├── Customer_Segmentation_and_Cohort_Analysis.ipynb    # Complete end-to-end executed Jupyter Notebook
+├── requirements.txt                                   # Required Python dependencies
+└── README.md                                          # Project documentation and complete report
 ```
 
 ---
 
-## Dataset Specifications & Preprocessing
+## Dataset Details & Preprocessing
 
-The analysis uses the benchmark [UCI Online Retail Dataset](https://archive.icsuci.edu/dataset/352/online+retail), containing real-world transactions from a UK online gifts retailer between **01/12/2010** and **09/12/2011**.
+The project analyzes the benchmark [UCI Online Retail Dataset](https://archive.icsuci.edu/dataset/352/online+retail) containing transactions from a UK online gifts retailer between **01/12/2010** and **09/12/2011**.
 
-### Data Cleaning Checklist:
-- **Missing `CustomerID`:** Filtered 135,080 guest transactions lacking user tracking.
-- **Canceled Transactions:** Filtered 8,905 invoices prefixed with `'C'` (credit memos/returns).
-- **Price/Quantity Hygiene:** Filtered non-positive quantities and zero unit prices (damaged inventory write-offs).
-- **Feature Engineering:** Calculated line-item spend: $\text{TotalPrice} = \text{Quantity} \times \text{UnitPrice}$.
+### Preprocessing Checklist:
+1. **Handling Missing Values:** Dropped 135,080 rows lacking `CustomerID` (guest checkouts without persistent user identification).
+2. **Filtering Cancellations:** Excluded 8,905 transactions where `InvoiceNo` started with `'C'` (credit memos/refunds).
+3. **Invalid Quantities & Unit Prices:** Filtered out negative or zero `Quantity` and non-positive `UnitPrice` records.
+4. **Feature Engineering:** Calculated line-item spend: $\text{TotalPrice} = \text{Quantity} \times \text{UnitPrice}$.
+5. **Datetime Conversion:** Parsed `InvoiceDate` into standard datetime objects.
 
 | Metric | Raw Dataset | Cleaned Dataset |
 |---|:---:|:---:|
@@ -118,74 +70,78 @@ The analysis uses the benchmark [UCI Online Retail Dataset](https://archive.icsu
 
 ---
 
-## Cohort Analysis (Customer Retention)
+## Cohort Analysis Methodology & Retention Table
 
-Customers are assigned to **Monthly Acquisition Cohorts** based on the month of their first recorded transaction (`CohortMonth`). Each subsequent purchase is indexed relative to acquisition:
+### Approach:
+- **`CohortMonth`:** Month of each customer's very first recorded transaction.
+- **`InvoiceMonth`:** Calendar month of each transaction.
+- **`CohortIndex`:** Elapsed months since acquisition:
+  $$\text{CohortIndex} = (\text{InvoiceYear} - \text{CohortYear}) \times 12 + (\text{InvoiceMonth} - \text{CohortMonth}) + 1$$
+- **`Retention Rate`:** Active customers in Month $i$ divided by initial cohort size $\times 100\%$.
 
-$$\text{CohortIndex} = (\text{InvoiceYear} - \text{CohortYear}) \times 12 + (\text{InvoiceMonth} - \text{CohortMonth}) + 1$$
+### Retention Rate (%) by Monthly Cohort:
 
-$$\text{Retention Rate} = \frac{\text{Active Customers in Period } i}{\text{Total Customers Acquired in Cohort}} \times 100\%$$
+| Cohort | Size | M1 | M2 | M3 | M4 | M5 | M6 | M7 | M8 | M9 | M10 | M11 | M12 |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **2010-12** | 885 | 100% | 36.6% | 32.3% | 38.4% | 36.3% | 39.8% | 36.2% | 35.4% | 35.4% | 39.5% | 37.3% | 50.0% |
+| **2011-01** | 417 | 100% | 23.3% | 28.3% | 24.2% | 32.9% | 29.7% | 26.1% | 25.7% | 31.2% | 34.8% | 36.9% | - |
+| **2011-02** | 380 | 100% | 24.7% | 19.2% | 27.9% | 26.8% | 24.7% | 25.5% | 28.2% | 25.8% | 31.3% | - | - |
+| **2011-03** | 452 | 100% | 19.0% | 25.4% | 21.9% | 23.2% | 17.7% | 26.3% | 23.9% | 28.1% | - | - | - |
+| **2011-04** | 300 | 100% | 22.7% | 22.0% | 21.0% | 20.7% | 23.7% | 23.0% | 26.0% | - | - | - | - |
+| **2011-05** | 284 | 100% | 23.6% | 17.3% | 17.3% | 21.5% | 24.3% | 26.4% | - | - | - | - | - |
+| **2011-06** | 242 | 100% | 20.7% | 18.6% | 27.3% | 24.8% | 31.4% | - | - | - | - | - | - |
+| **2011-07** | 188 | 100% | 20.7% | 20.2% | 23.4% | 27.1% | - | - | - | - | - | - | - |
+| **2011-08** | 169 | 100% | 25.4% | 25.4% | 25.4% | - | - | - | - | - | - | - | - |
+| **2011-09** | 299 | 100% | 29.8% | 32.8% | - | - | - | - | - | - | - | - | - |
+| **2011-10** | 358 | 100% | 26.5% | - | - | - | - | - | - | - | - | - | - |
+| **2011-11** | 323 | 100% | 13.3% | - | - | - | - | - | - | - | - | - | - |
 
-### Retention Heatmap Findings:
-- **Month-1 Drop-off:** Retention experiences an initial drop from 100% in Month 0 to an average of **20.62%** in Month 1 across all cohorts.
-- **Long-Term Baseline:** Cohorts stabilize between **22% and 36%** in subsequent months, demonstrating a resilient repeat wholesale customer core.
-- **Top Performing Cohort:** The December 2010 cohort maintained the highest long-term retention (up to 50% in Month 11).
+**Key Finding:** Across all cohorts, retention drops sharply in Month 1 (averaging **20.62%**), meaning ~79% of customers do not make an immediate repeat purchase. However, the customers who survive past Month 1 stabilize into a loyal baseline (~22–36% repeat purchase rate).
 
 ---
 
-## RFM Segmentation Methodology
+## RFM Segmentation Methodology & Results
 
-### Metric Definitions:
-- **Recency ($R$):** Days elapsed between snapshot evaluation date (`2011-12-10`) and customer's latest order date.
-- **Frequency ($F$):** Total count of unique completed invoices per customer.
-- **Monetary ($M$):** Cumulative spending (£) per customer.
+### Scoring Logic:
+- **Recency ($R$):** Days since customer's last order (quantiles 1–5, inverted so 5 = most recent).
+- **Frequency ($F$):** Total count of distinct orders/invoices (rank-based quantiles 1–5).
+- **Monetary ($M$):** Total cumulative spend (quantiles 1–5).
 
-### Scoring & Segment Performance:
+### Segment Characteristics & Revenue Contribution:
 
-| Customer Segment | Criteria ($R, F$) | Customers | % Cust Base | % Revenue | Mean Spend (£) | Mean Recency | Mean Frequency |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **Champions** | $R \in [4,5], F \in [4,5]$ | 1,139 | **26.3%** | **66.5%** | **£5,204.32** | 16.3 days | 10.9 orders |
-| **Loyal Customers** | $R \in [3,5], F \in [3,5]$ | 821 | **18.9%** | **15.2%** | £1,651.33 | 55.4 days | 4.1 orders |
-| **At Risk** | $R \in [1,2], F \in [2,5]$ | 717 | **16.5%** | **8.1%** | £1,008.49 | 179.2 days | 2.9 orders |
-| **Needing Attention** | $R \in [2,3], F \in [2,3]$ | 615 | **14.2%** | **4.5%** | £648.45 | 112.5 days | 2.1 orders |
-| **Hibernating / Lost** | $R \in [1,2], F \in [1,2]$ | 364 | **8.4%** | **2.2%** | £544.05 | 247.1 days | 1.1 orders |
-| **Potential Loyalists** | $R \in [4,5], F \in [2,3]$ | 178 | **4.1%** | **1.1%** | £531.92 | 23.4 days | 2.0 orders |
-| **About to Sleep** | $R \in [2,3], F \in [1,2]$ | 199 | **4.6%** | **1.0%** | £466.94 | 108.9 days | 1.2 orders |
-| **Promising** | $R \in [3,4], F = 1$ | 164 | **3.8%** | **0.8%** | £420.28 | 45.2 days | 1.0 orders |
-| **New Customers** | $R \in [4,5], F = 1$ | 141 | **3.2%** | **0.6%** | £365.14 | 15.8 days | 1.0 orders |
+| Customer Segment | Criteria ($R, F$) | Customers | % Cust Base | % Revenue | Total Spend (£) | Mean Spend (£) | Avg Recency | Avg Orders |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Champions** | $R \in [4,5], F \in [4,5]$ | 1,139 | **26.3%** | **66.5%** | £5,927,725 | **£5,204.32** | 16.3 days | 10.9 |
+| **Loyal Customers** | $R \in [3,5], F \in [3,5]$ | 821 | **18.9%** | **15.2%** | £1,355,741 | £1,651.33 | 55.4 days | 4.1 |
+| **At Risk** | $R \in [1,2], F \in [2,5]$ | 717 | **16.5%** | **8.1%** | £723,086 | £1,008.49 | 179.2 days | 2.9 |
+| **Needing Attention** | $R \in [2,3], F \in [2,3]$ | 615 | **14.2%** | **4.5%** | £398,799 | £648.45 | 112.5 days | 2.1 |
+| **Hibernating / Lost** | $R \in [1,2], F \in [1,2]$ | 364 | **8.4%** | **2.2%** | £198,034 | £544.05 | 247.1 days | 1.1 |
+| **Potential Loyalists** | $R \in [4,5], F \in [2,3]$ | 178 | **4.1%** | **1.1%** | £94,682 | £531.92 | 23.4 days | 2.0 |
+| **About to Sleep** | $R \in [2,3], F \in [1,2]$ | 199 | **4.6%** | **1.0%** | £92,922 | £466.94 | 108.9 days | 1.2 |
+| **Promising** | $R \in [3,4], F = 1$ | 164 | **3.8%** | **0.8%** | £68,926 | £420.28 | 45.2 days | 1.0 |
+| **New Customers** | $R \in [4,5], F = 1$ | 141 | **3.2%** | **0.6%** | £51,486 | £365.14 | 15.8 days | 1.0 |
 
 ---
 
 ## Machine Learning Clustering (K-Means)
 
-To discover empirical behavioral clusters without rule-based assumptions:
-1. **Variance Stabilization:** Natural log transformation $\log(x + 1)$ applied to de-skew power-law distributions.
-2. **Standardization:** `StandardScaler` applied to prevent scale dominance.
-3. **Hyperparameter Selection:** Evaluating $k \in [2, 8]$ identified an optimal elbow at **$k = 4$** ($\text{Silhouette} = 0.337$).
+1. **Log Transformation:** Applied $\log(x + 1)$ to normalize heavily right-skewed RFM distributions.
+2. **Feature Scaling:** Applied `StandardScaler` ($\mu=0, \sigma=1$).
+3. **Optimal $k$:** Evaluated $k \in [2, 8]$ using Elbow Inertia and Silhouette Scores; selected **$k = 4$** ($\text{Silhouette} = 0.337$).
 
-### Empirical Cluster Profiles:
-- **Cluster 1 (High-Value VIPs):** 16.5% of customers producing **64.9% of revenue** (Avg Spend: **£8,074**, Avg Frequency: **13.7**).
-- **Cluster 2 (Frequent Regulars):** 27.0% of customers generating **23.7% of revenue** (Avg Spend: **£1,802**, Avg Frequency: **4.1**).
-- **Cluster 0 (Recent Shoppers):** 19.3% of customers (Avg Recency: **18 days**, Avg Spend: **£551**).
-- **Cluster 3 (Dormant Churn Risks):** 37.2% of customers contributing only 6.2% of revenue (Avg Recency: **182 days**).
-
----
-
-## Key Insights & Strategic Recommendations
-
-1. **Protect the VIP Core (Champions):** Top buyers account for nearly two-thirds of total turnover. Deploy high-touch VIP relationship programs, dedicated support, and preview product allocations rather than generic discounts.
-2. **Tackle the Month-1 Retention Cliff:** Over 79% of customers do not repurchase after month 1. Deploy automated onboarding email drip campaigns within **14 days** of initial order, featuring cross-sell guides and 2nd-purchase shipping incentives.
-3. **Automate Win-Back for At-Risk Customers:** 717 customers (£723k past spend) have lapsed over 150+ days. Implement dynamic win-back workflows with personalized re-engagement incentives before transition to the lost pool.
+### Empirical Clusters ($k = 4$):
+- **Cluster 1 (High-Value VIPs):** 16.5% of customers, **64.9% of revenue** (Avg Spend: **£8,074**, Avg Frequency: **13.7**).
+- **Cluster 2 (Frequent Regulars):** 27.0% of customers, **23.7% of revenue** (Avg Spend: **£1,802**, Avg Frequency: **4.1**).
+- **Cluster 0 (Recent Shoppers):** 19.3% of customers, 5.2% of revenue (Avg Recency: **18 days**, Avg Spend: **£551**).
+- **Cluster 3 (Dormant Churn Risks):** 37.2% of customers, 6.2% of revenue (Avg Recency: **182 days**, Avg Orders: **1.3**).
 
 ---
 
-## Technologies & Libraries
+## Actionable Business Insights
 
-- **Language:** Python 3.8+
-- **Data Wrangling:** Pandas, NumPy
-- **Machine Learning:** Scikit-Learn (`StandardScaler`, `KMeans`, `silhouette_score`)
-- **Data Visualization:** Matplotlib, Seaborn
-- **Environment:** Jupyter Notebook, JupyterLab
+1. **Protect the Champion VIPs:** Top 26.3% of customers account for **66.5% of total revenue**. Focus marketing resources on high-touch concierge services, early product previews, and premium loyalty perks.
+2. **Bridge the Month-1 Churn Cliff:** The steepest drop in customer engagement occurs between Month 0 and Month 1. Deploy automated email drip campaigns within **14 days** of initial purchase featuring personalized product recommendations and 2nd-order shipping incentives.
+3. **Automate Win-Back for At-Risk Customers:** 717 customers representing **£723k in historical revenue** have not purchased in over 150 days. Send time-limited re-engagement discounts before they transition to the lost pool.
 
 ---
 
@@ -221,20 +177,11 @@ pip install -r requirements.txt
 
 ## Usage Instructions
 
-### Option A: Run the CLI Automated Pipeline
-Execute the complete end-to-end data processing, cohort analysis, RFM segmentation, K-Means clustering, and chart generation in a single command:
+Launch Jupyter to open the notebook and inspect all pre-run cells, tables, and visualizations:
 ```bash
-python main.py
+jupyter notebook Customer_Segmentation_and_Cohort_Analysis.ipynb
 ```
-Outputs generated:
-- High-resolution visual charts in `figures/`
-- Enriched customer dataset with segment labels in `data/customer_rfm_segments.csv`
-
-### Option B: Interactive Jupyter Notebook
-Launch Jupyter to explore interactive markdown narration, step-by-step calculations, and inline visualizations:
-```bash
-jupyter notebook notebooks/Customer_Segmentation_and_Cohort_Analysis.ipynb
-```
+Select **Kernel > Restart & Run All** to re-execute all cells top-to-bottom.
 
 ---
 
